@@ -78,18 +78,22 @@ public class HangmanApplication {
     public static void handleSession(PlayerSession session, JTextField guessOptionLabel, JLabel resultLabel, JLabel scoreLabel, JLabel guessSequenceLabel, JFrame frame, JPanel mainPanel) {
         resultLabel.setText("");
 
+        // Get the guessed character from the text field
         char guessedChar = '\0';
         if (!guessOptionLabel.getText().isBlank()) {
             guessedChar = guessOptionLabel.getText().toCharArray()[0];
         }
-        if (guessOptionLabel.getText().isBlank() || !Utils.isAnAlphabet(guessOptionLabel.getText()) || guessOptionLabel.getText().length() >1) {
+
+        // Validate the user's guess
+        if (guessOptionLabel.getText().isBlank() || !Utils.isAnAlphabet(guessOptionLabel.getText()) || guessOptionLabel.getText().length() > 1) {
             resultLabel.setForeground(Color.RED);
             resultLabel.setText(NOT_CHARACTER_ERROR);
-        }
-        else {
-            //current word to guess string has been converted to char [] for easier manipulation of data
-            char [] currentWord = session.getCurrentWordToGuess().toCharArray();
+        } else {
+            // Retrieve the current word to guess
+            char[] currentWord = session.getCurrentWordToGuess().toCharArray();
             boolean isWrongGuessFlag = true;
+
+            // Check if the guessed character is correct or incorrect
             if (!checkAlreadyGuessed(session, guessedChar)) {
                 //this loop will loop through the character array(created for the current word to guess) and check for matches
                 for (int i = 0; i < currentWord.length; i++) {
@@ -109,7 +113,8 @@ public class HangmanApplication {
 
             }
 
-            if(isWrongGuessFlag) {
+            if (isWrongGuessFlag) {
+                // Display incorrect guess message
                 resultLabel.setForeground(Color.RED);
                 session.setIncorrectlyGuessedChars(guessedChar);
 
@@ -120,21 +125,20 @@ public class HangmanApplication {
                     }
                     incorrectGuesses += session.getIncorrectlyGuessedChars()[i] + ", ";
                 }
-                resultLabel.setText("you guessed the following words incorrectly : " + incorrectGuesses);
-            }
-
-            else {
+                resultLabel.setText("You guessed the following letters incorrectly: " + incorrectGuesses);
+            } else {
+                // Display correct guess message
                 resultLabel.setForeground(Color.GREEN);
-                resultLabel.setText("Your guess is : " + guessOptionLabel.getText());
+                resultLabel.setText("Your guess is correct: " + guessOptionLabel.getText());
                 guessSequenceLabel.setText(session.getGuessSequence());
 
                 //we only want to run the matching algorithm only and only if our guess sequence contain an empty space to guess, otherwise we end game
                 if (!session.getGuessSequence().contains("*")) {
+                    // Prompt the user to add a new word to the game dictionary
                     resultLabel.setForeground(Color.GREEN);
-                    resultLabel.setText("you guessed the word correctly : " + session.getGuessSequence());
-                    System.out.println("you guessed the word correctly : " + session.getGuessSequence());
+                    resultLabel.setText("You guessed the word correctly: " + session.getGuessSequence());
 
-                    JLabel userLabel = new JLabel("Please add a string to our existing game dictionary");
+                    JLabel userLabel = new JLabel("Please add a word to our existing game dictionary:");
                     JTextField userInputLabel = new JTextField(10);
                     JPanel userPanel = new JPanel();
                     userPanel.add(userLabel);
@@ -147,6 +151,7 @@ public class HangmanApplication {
                     mainPanel.add(userPanel);
                     mainPanel.add(okPanel);
 
+                    // ActionListener for adding a word to the dictionary
                     ActionListener userActionListener = new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -158,9 +163,11 @@ public class HangmanApplication {
                                 throw new RuntimeException(ex);
                             }
                         }
-
                     };
                     okButton.addActionListener(userActionListener);
+
+                    // Reset the GUI and session for a new game
+
 
                     resetGUIAndSession(session, guessOptionLabel, resultLabel, scoreLabel, guessSequenceLabel);
                 }
